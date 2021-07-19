@@ -1,0 +1,299 @@
+<form theme="dark">
+  <label>Akamai statistics</label>
+  <description>*Traffic data is sampled and provided using the official Akamai API. Enjoy! 🐶</description>
+  <search id="base_search_metrics">
+    <query>index=main sourcetype=akamai:json_metrics metric_value>0 DC | eval metric_value=metric_value/1000/1000 | table _time, metric_name, metric_measure, metric_value, DC</query>
+    <earliest>$timeToken.earliest$</earliest>
+    <latest>$timeToken.latest$</latest>
+  </search>
+  <search id="base_search_timeseriesdata">
+    <query>index=main sourcetype=akamai:json_metrics  time_serie_name time_serie_value>0 asset | eval time_serie_value=time_serie_value/1000/1000 | table _time, time_serie_name, time_serie_value, asset</query>
+    <earliest>$timeToken.earliest$</earliest>
+    <latest>$timeToken.latest$</latest>
+  </search>
+  <!--<row>
+    <panel>
+      <title>WIP</title>
+      <table>
+        <title>WIP</title>
+        <search>
+          <query>index=ain=akamai:prolexic:analytics:apiv2:criticalevents| rex field=description "^(&quot;%lt;shortDescription%gt;^[^%lt;]+)" |sort -_indextime|stats first(firstOccur) AS firstOccur first(shortDescription) AS shortDescription first(importance) AS importance first(ip) AS ip first(recentOccur) AS  recentOccur BY eventId | eval time=strftime(firstOccur,"%d/%m/%y %H:%M:%S"),  recentOccur=strftime(recentOccur,"%d/%m/%y %H:%M:%S")|table time, ip, description, importance, recentOccur</query>
+          <earliest>-7d@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>-->
+  <fieldset submitButton="true">
+    <input type="time" token="timeToken">
+      <label></label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="dropdown" token="time_resolution" searchWhenChanged="true">
+      <label>Resolution</label>
+      <choice value="1m">1 m</choice>
+      <choice value="2m">2m</choice>
+      <choice value="5m">5m</choice>
+      <choice value="20m">20m</choice>
+      <choice value="1h">1h</choice>
+      <default>2m</default>
+      <initialValue>2m</initialValue>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>Global bandwith flow by datacenter</title>
+      <chart>
+        <title>Pre mitigation</title>
+        <search base="base_search_metrics">
+          <query>search metric_name=mitigationPre metric_measure=bandwidth | timechart span=$time_resolution$ max(metric_value) AS MBs by DC</query>
+        </search>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.text">MB/s</option>
+        <option name="charting.chart">area</option>
+        <option name="charting.chart.nullValueMode">zero</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.drilldown">none</option>
+      </chart>
+      <chart>
+        <title>Post mitigation</title>
+        <search base="base_search_metrics">
+          <query>search metric_name=mitigationPost metric_measure=bandwidth |timechart span=$time_resolution$ max(metric_value) AS MBs by DC</query>
+        </search>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.text">MB/s</option>
+        <option name="charting.chart">area</option>
+        <option name="charting.chart.nullValueMode">zero</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.drilldown">none</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>Global packet flow by datacenter</title>
+      <chart>
+        <title>Pre mitigation</title>
+        <search base="base_search_metrics">
+          <query>search metric_name=mitigationPre metric_measure=packets |timechart span=$time_resolution$ max(metric_value) AS Mps by DC</query>
+        </search>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.text">Mpkt/s</option>
+        <option name="charting.chart">area</option>
+        <option name="charting.chart.nullValueMode">zero</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.drilldown">none</option>
+      </chart>
+      <chart>
+        <title>Post mitigation</title>
+        <search base="base_search_metrics">
+          <query>search metric_name=mitigationPost metric_measure=packets |timechart span=$time_resolution$ max(metric_value) AS Mps by DC</query>
+        </search>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.text">Mpkt/s</option>
+        <option name="charting.chart">area</option>
+        <option name="charting.chart.nullValueMode">zero</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.drilldown">none</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Global bandwith flow by asset</title>
+      <chart>
+        <title>Border statistics</title>
+        <search base="base_search_timeseriesdata">
+          <query>search time_serie_name=BORDER_FLOW_TOTAL_BPS asset="*/*"|timechart span=$time_resolution$ max(time_serie_value) by asset LIMIT=20</query>
+        </search>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.text">MB/s</option>
+        <option name="charting.chart">area</option>
+        <option name="charting.chart.nullValueMode">zero</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.drilldown">none</option>
+      </chart>
+      <chart>
+        <title>Access statistics</title>
+        <search base="base_search_timeseriesdata">
+          <query>search time_serie_name=ACCESS_FLOW_TOTAL_BPS asset="*/*"|timechart span=$time_resolution$ max(time_serie_value) by asset LIMIT=20</query>
+        </search>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.text">MB/s</option>
+        <option name="charting.chart">area</option>
+        <option name="charting.chart.nullValueMode">zero</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.drilldown">none</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>Global packet flow by asset</title>
+      <chart>
+        <title>Border statistics</title>
+        <search base="base_search_timeseriesdata">
+          <query>search time_serie_name=BORDER_FLOW_TOTAL_PPS asset="*/*"|timechart span=$time_resolution$ max(time_serie_value) by asset LIMIT=20</query>
+        </search>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.text">Mpkt/s</option>
+        <option name="charting.chart">area</option>
+        <option name="charting.chart.nullValueMode">zero</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.drilldown">none</option>
+      </chart>
+      <chart>
+        <title>Access statistics</title>
+        <search base="base_search_timeseriesdata">
+          <query>search time_serie_name=ACCESS_FLOW_TOTAL_PPS asset="*/*"|timechart span=$time_resolution$ max(time_serie_value) by asset LIMIT=20</query>
+        </search>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.text">Mpkt/s</option>
+        <option name="charting.chart">area</option>
+        <option name="charting.chart.nullValueMode">zero</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.drilldown">none</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Global bandwith flow for relevant IPs</title>
+      <chart>
+        <title>Border statistics</title>
+        <search base="base_search_timeseriesdata">
+          <query>search time_serie_name=BORDER_FLOW_TOTAL_BPS asset!="*/*"|timechart span=$time_resolution$ max(time_serie_value) by asset LIMIT=20</query>
+        </search>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.text">MB/s</option>
+        <option name="charting.chart">area</option>
+        <option name="charting.chart.nullValueMode">zero</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.drilldown">none</option>
+      </chart>
+      <chart>
+        <title>Access statistics</title>
+        <search base="base_search_timeseriesdata">
+          <query>search time_serie_name=ACCESS_FLOW_TOTAL_BPS asset!="*/*"|timechart span=$time_resolution$ max(time_serie_value) by asset LIMIT=20</query>
+        </search>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.text">MB/s</option>
+        <option name="charting.chart">area</option>
+        <option name="charting.chart.nullValueMode">zero</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.drilldown">none</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>Global packet flow for relevant IPs</title>
+      <chart>
+        <title>Border statistics</title>
+        <search base="base_search_timeseriesdata">
+          <query>search time_serie_name=BORDER_FLOW_TOTAL_PPS asset!="*/*"|timechart span=$time_resolution$ max(time_serie_value) by asset LIMIT=20</query>
+        </search>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.text">Mpkt/s</option>
+        <option name="charting.chart">area</option>
+        <option name="charting.chart.nullValueMode">zero</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.drilldown">none</option>
+      </chart>
+      <chart>
+        <title>Access statistics</title>
+        <search base="base_search_timeseriesdata">
+          <query>search time_serie_name=ACCESS_FLOW_TOTAL_PPS asset!="*/*"|timechart span=$time_resolution$ max(time_serie_value) by asset LIMIT=20</query>
+        </search>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.text">Mpkt/s</option>
+        <option name="charting.chart">area</option>
+        <option name="charting.chart.nullValueMode">zero</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.drilldown">none</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Global bandwith flow by protocol</title>
+      <chart>
+        <title>Border statistics</title>
+        <search base="base_search_timeseriesdata">
+          <query>search NOT time_serie_name="*TOTAL*" time_serie_name="*BORDER*" time_serie_name="*BPS*" | timechart span=$time_resolution$ max(time_serie_value) by time_serie_name</query>
+        </search>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.text">MB/s</option>
+        <option name="charting.chart">area</option>
+        <option name="charting.chart.nullValueMode">zero</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.drilldown">none</option>
+      </chart>
+      <chart>
+        <title>Access statistics</title>
+        <search base="base_search_timeseriesdata">
+          <query>search NOT time_serie_name="*TOTAL*" time_serie_name="*ACCESS*" time_serie_name="*BPS*" | timechart span=$time_resolution$ max(time_serie_value) by time_serie_name</query>
+        </search>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.text">MB/s</option>
+        <option name="charting.chart">area</option>
+        <option name="charting.chart.nullValueMode">zero</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.drilldown">none</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>Global packet flow by protocol</title>
+      <chart>
+        <title>Border statistics</title>
+        <search base="base_search_timeseriesdata">
+          <query>search NOT time_serie_name="*TOTAL*" time_serie_name="*BORDER*" time_serie_name="*PPS*" | timechart span=$time_resolution$ max(time_serie_value) by time_serie_name</query>
+        </search>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.text">Mpkt/s</option>
+        <option name="charting.chart">area</option>
+        <option name="charting.chart.nullValueMode">zero</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.drilldown">none</option>
+      </chart>
+      <chart>
+        <title>Access statistics</title>
+        <search base="base_search_timeseriesdata">
+          <query>search NOT time_serie_name="*TOTAL*" time_serie_name="*ACCESS*" time_serie_name="*PPS*" | timechart span=$time_resolution$ max(time_serie_value) by time_serie_name</query>
+        </search>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.text">Mpkt/s</option>
+        <option name="charting.chart">area</option>
+        <option name="charting.chart.nullValueMode">zero</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.drilldown">none</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Events</title>
+      <table>
+        <title>Attacks. Time in UTC</title>
+        <search>
+          <query>index=main akamai:json_event ticketId| fillnull eventEndTime value=99999999999|spath path=destinations{} output=networks| rex mode=sed field=networks "s/{\"ip\": \"//g"| rex mode=sed field=networks "s/, \"netmask\": /\//g"| rex mode=sed field=networks "s/\"|}//g"|sort -_indextime|stats first(eventStartTimeAsString) AS eventStartTimeAsString first(eventEndTimeAsString) AS eventEndTimeAsString first(customerShortName) AS customerShortName, first(destinationPort) AS destinationPort, values(networks) AS networks, values(eventTypes{}) AS eventTypes, first(eventEndTime) AS eventEndTime BY ticketId,eventId|sort -eventEndTime|table eventStartTimeAsString eventEndTimeAsString customerShortName destinationPort networks eventTypes ticketId</query>
+          <earliest>-7d@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title></title>
+      <table>
+        <title>Alerts. Time in UTC</title>
+        <search>
+          <query>index=main akamai:json_event eventInfo | sort -_indextime|stats first(eventStartTime) as startTimeEpoch, first(eventInfo.summary) AS summary, max(severity) AS severity, first(eventType) AS evenType, first(eventEndTime) AS eventEndTime BY eventInfo.attackId|sort -eventEndTime|eval time=strftime(startTimeEpoch,"%d/%m/%y %H:%M:%S")|table time,summary, evenType, severity</query>
+          <earliest>-7d@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+</form> 

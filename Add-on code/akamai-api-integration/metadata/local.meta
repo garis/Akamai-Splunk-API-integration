@@ -1,0 +1,24 @@
+[props/source%3A%3A...akamai-api-integration%2A.log%2A]
+owner = admin
+version = 8.2.1
+modtime = 1626365594.545946000
+
+[props/source%3A%3A...akamai_api_integration%2A.log%2A]
+owner = admin
+version = 8.2.1
+modtime = 1626365594.650654000
+
+[props/akamai%3Ajson_metrics]
+owner = admin
+version = 8.2.1
+modtime = 1626377163.833624000
+
+[props/akamai%3Ajson_event]
+owner = admin
+version = 8.2.1
+modtime = 1626451780.586865000
+
+[props/akamai%3Ajson_conf]
+owner = admin
+version = 8.2.1
+modtime = 1626451793.527528000
