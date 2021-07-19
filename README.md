@@ -1,5 +1,5 @@
 # Akamai-Splunk-API-integration
-Unofficial Splunk add on for Akamai prolexic, DNS and GTM ingestion written in Python 3.7
+**Unofficial** Splunk add on for Akamai prolexic, DNS and GTM ingestion written in Python 3.7
 
 ![Dashboard example](https://github.com/garis/Akamai-Splunk-API-integration/blob/main/images/dashboard.png)
 
@@ -10,7 +10,7 @@ Unofficial Splunk add on for Akamai prolexic, DNS and GTM ingestion written in P
 | conf_domains | akamai:json_conf | Akamai Edge DNS Zone and GTM Management API v2 add on for Splunk |
 | prolexic_events | akamai:json_event | Akamai Prolexic Analytics APIv2 events add on for Splunk |
 
-*akamai:json_metrics* and *akamai:json_event* are designed to be resistant to network problems. If the API or the connectivity fails the next ones are able to recover what wasn't logged before.
+*akamai:json_metrics* and *akamai:json_event* are designed to be resistant to network problems. If the API or the connectivity fails the next scheduled run is  able to recover what wasn't logged before.
 
 ## akamai:json_metrics
 
@@ -38,6 +38,6 @@ Collects Prolexic events using:
 [Prolexic API docs](https://developer.akamai.com/api/cloud_security/prolexic_analytics/v2.html)
 
 All data is logged as JSON objects. The ingestion is performed once for every run of the input but for only new or updated events.
-The input calculate and saves and hash for each events (using the helper checkpoint functions from Splunk or by falling back to a local file). Only events with new hashes are logged to avoid duplicates.
+The input calculate and saves an hash for each events (using the helper checkpoint functions from Splunk or by falling back to a local file). Only events with new hashes are logged to avoid duplicates.
 
-#### Special thanks to [Pastea](https://github.com/Pastea) for the help
+#### Special thanks to [Pastea](https://github.com/Pastea) for the help.
