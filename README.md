@@ -94,7 +94,7 @@ Keep in mind that every input need the API credentials, in this way multiple one
 | Input Name | Metrics | API call |
 |---|---|---|
 | akamai:json_metrics | opt_metric | One for every contract |
-| akamai:json_metrics | opt_time_series | One for every subnet and on for all the IP |
+| akamai:json_metrics | opt_time_series | One for every subnet and one for all the IPs |
 | akamai:json_event | opt_critical_events | One for every contract |
 | akamai:json_event | opt_attack_reports | One for every contract |
 | akamai:json_event | opt_events | One for every contract |
