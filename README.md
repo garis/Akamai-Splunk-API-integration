@@ -69,6 +69,7 @@ The input calculate and saves an hash for each events (using the helper checkpoi
 This input has three sub-input that can be enabled with *opt_critical_events*, *opt_attack_reports* or *opt_events* (checkboxes available in the Splunk GUI).
 
 For all three the logic is the same:
+
 1) get the event list given a contract ID or a timerange if necessary.
 2) for each single JSON event:
   -) compute the hash of the entire event
