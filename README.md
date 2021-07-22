@@ -27,14 +27,14 @@ This input has two sub-input that can be enabled with *opt_metric* or *opt_time_
 
 #### opt_metric
 
-Using "prolexic-analytics/v2/metrics" both measures *bandwidth* and *packets* will be downloaded for *mitigationPost* and *mitigationPre* for each defined contract ID.
+Using *prolexic-analytics/v2/metrics* both measures *bandwidth* and *packets* will be downloaded for *mitigationPost* and *mitigationPre* for each defined contract ID.
 
 The value *opt_api_sample* define how many minutes will be requested. 
 Using the checkpoints values only the new values will be logged. So if we have 10 samples with timestamps 10,11,12,13,14,15,16,17,18,19,20 and a checkpoint with value 19 then only the metrics with time 20 will be logged.
 
 #### opt_time_series
 
-Using "prolexic-analytics/v2/time-series-data" the aggregated mesures (*agr*) will be downloaded for each subnet or IP specified. For some reason the API allow only one request for each subnet but for IP a single request can contain multiple IPs.
+Using *prolexic-analytics/v2/time-series-data* the aggregated mesures (*agr*) will be downloaded for each subnet or IP specified. For some reason the API allow only one request for each subnet but for IP a single request can contain multiple IPs.
 As for *opt_metric* *opt_api_sample* a similar logic has been implemented and checkpoints are used to log only new events. 
 
 ## akamai:json_conf
@@ -51,11 +51,11 @@ This input has two sub-input that can be enabled with *opt_gtm_configuration* or
 
 #### opt_gtm_configuration
 
-Using "config-gtm/v1/domains" (to obtain the resources) and "config-gtm/v1/domains" (to obtain the GTM config of each resource previously found) the entire GTM config will be logged in each execution.
+Using *config-gtm/v1/domains* (to obtain the resources) and *config-gtm/v1/domains* (to obtain the GTM config of each resource previously found) the entire GTM config will be logged in each execution.
 
 #### opt_dns_zones
 
-Using "config-dns/v2/zones" (to obtain the zones) and "config-dns/v2/zones/{ZONE}/zone-file" (to obtain the zone dump of each zone previously found) the entire DNS zone for each domain will be logged in each execution.
+Using *config-dns/v2/zones* (to obtain the zones) and *config-dns/v2/zones/{ZONE}/zone-file* (to obtain the zone dump of each zone previously found) the entire DNS zone for each domain will be logged in each execution.
 
 ## akamai:json_event
 
@@ -71,19 +71,20 @@ This input has three sub-input that can be enabled with *opt_critical_events*, *
 For all three the logic is the same:
 
 1) get the event list given a contract ID or a timerange if necessary.
-2) for each single JSON event:
-  -) compute the hash of the entire event
-  -) log only if the hash is new or different (usefull mainly for the attack reports since usually are updated by the operators)
+
+2) for each single JSON event: compute the hash of the entire event and log only if the hash is new or different (usefull mainly for the attack reports since usually are updated by the operators)
  
 # FAQ
 
 ## what does it means "Use Splunk helper checkpoint"?
 
 The checkpoint mechanism implemented works in two modes:
-1) helper function provided by Splunk (Docs)[https://docs.splunk.com/Documentation/AddonBuilder/4.0.0/UserGuide/PythonHelperFunctions]
+
+1) helper function provided by Splunk [Docs](https://docs.splunk.com/Documentation/AddonBuilder/4.0.0/UserGuide/PythonHelperFunctions)
+
 2) local and custom JSON file
 
-Method 1 rely on a KV store, method 2 rely on a local file in the bin folder. The second method must be used if, for some reason, a KV store cannot be used.
+Method 1 rely on a KV store, method 2 rely on a local file in the bin folder. The second method must be used if, for some reason, KV stores cannot be used.
 Method 1 is the suggested one.
 
 #### Special thanks to [Pastea](https://github.com/Pastea) for the help.
