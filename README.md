@@ -1,6 +1,8 @@
 # Akamai-Splunk-API-integration
 **Unofficial** Splunk add on for Akamai prolexic, DNS and GTM ingestion written in Python 3.7
 
+![Dashboard example](https://github.com/garis/Akamai-Splunk-API-integration/blob/main/images/dashboard.png)
+
 # Inputs
 | Input Name | Source Type | Description |
 |---|---|---|
