@@ -1,8 +1,6 @@
 # Akamai-Splunk-API-integration
 **Unofficial** Splunk add on for Akamai prolexic, DNS and GTM ingestion written in Python 3.7
 
-![Dashboard example](https://github.com/garis/Akamai-Splunk-API-integration/blob/main/images/dashboard.png)
-
 # Inputs
 | Input Name | Source Type | Description |
 |---|---|---|
@@ -37,7 +35,7 @@ Using the checkpoints values only the new values will be logged. So if we have 1
 Using *prolexic-analytics/v2/time-series-data* the aggregated mesures (*agr*) will be downloaded for each subnet or IP specified. For some reason the API allow only one request for each subnet but for IP a single request can contain multiple IPs.
 As for *opt_metric* *opt_api_sample* a similar logic has been implemented and checkpoints are used to log only new events. 
 
-## akamai:json_conf
+### akamai:json_conf
 
 Collects GTM and DNS zones using:
 
@@ -57,7 +55,7 @@ Using *config-gtm/v1/domains* (to obtain the resources) and *config-gtm/v1/domai
 
 Using *config-dns/v2/zones* (to obtain the zones) and *config-dns/v2/zones/{ZONE}/zone-file* (to obtain the zone dump of each zone previously found) the entire DNS zone for each domain will be logged in each execution.
 
-## akamai:json_event
+### akamai:json_event
 
 Collects Prolexic events using:
 
@@ -72,11 +70,11 @@ For all three the logic is the same:
 
 1) get the event list given a contract ID or a timerange if necessary.
 
-2) for each single JSON event: compute the hash of the entire event and log only if the hash is new or different (usefull mainly for the attack reports since usually are updated by the operators)
+2) for each single JSON event: compute the hash of the entire event and log only if the hash is new or different (attack reports usually are updated by the operators)
  
-# FAQ
+## FAQ
 
-## what does it means "Use Splunk helper checkpoint"?
+### What does it means "Use Splunk helper checkpoint"?
 
 The checkpoint mechanism implemented works in two modes:
 
@@ -86,5 +84,21 @@ The checkpoint mechanism implemented works in two modes:
 
 Method 1 rely on a KV store, method 2 rely on a local file in the bin folder. The second method must be used if, for some reason, KV stores cannot be used.
 Method 1 is the suggested one.
+
+### How frequent can I run the input collection?
+
+Officially Prolexic Analytics API endpoints are subject to a rate-limiting constraint, which is currently set to 1000 requests per hour.
+
+Keep in mind that every input need the API credentials, in this way multiple ones can be used at the same time for different inputs.
+
+| Input Name | Metrics | API call |
+|---|---|---|
+| akamai:json_metrics | opt_metric | One for every contract |
+| akamai:json_metrics | opt_time_series | One for every subnet and on for all the IP |
+| akamai:json_event | opt_critical_events | One for every contract |
+| akamai:json_event | opt_attack_reports | One for every contract |
+| akamai:json_event | opt_events | One for every contract |
+| akamai:json_conf | opt_gtm_configuration | Not a prolexic endpoints so no limits (probably...) |
+| akamai:json_conf | opt_dns_zones | Not a prolexic endpoints so no limits (probably...) |
 
 #### Special thanks to [Pastea](https://github.com/Pastea) for the help.
