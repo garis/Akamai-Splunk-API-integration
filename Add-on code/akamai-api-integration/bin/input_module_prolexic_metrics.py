@@ -283,13 +283,13 @@ def collect_events(helper, ew):
                                 
                                     # create the JSON object
                                     data={}
-                                    data["epochTimestamp"]=int(value)
+                                    data["epochTimestamp"]=int(str(value)[:-3])
                                     data["asset"]=resource
                                     data["time_serie_name"]=metric
                                     data["time_serie_value"]=float(responseJSON[resource][metric][value])
                                 
                                     # create the event to be logged
-                                    event = helper.new_event(time=float(value),source=helper.get_input_type(),
+                                    event = helper.new_event(time=int(str(value)[:-3]),source=helper.get_input_type(),
                                         index=helper.get_output_index(),
                                         sourcetype=helper.get_sourcetype(),
                                         data=json.dumps(data))
@@ -357,13 +357,13 @@ def collect_events(helper, ew):
                         
                             # create the JSON object
                             data={}
-                            data["epochTimestamp"]=int(value)
+                            data["epochTimestamp"]=int(str(value)[:-3])
                             data["asset"]=asset
                             data["time_serie_name"]=metric
                             data["time_serie_value"]=float(responseJSON[asset][metric][value])
                             
                             # create the event to be logged
-                            event = helper.new_event(time=float(value),source=helper.get_input_type(),
+                            event = helper.new_event(time=int(str(value)[:-3]),source=helper.get_input_type(),
                                 index=helper.get_output_index(),
                                 sourcetype=helper.get_sourcetype(),
                                 data=json.dumps(data))

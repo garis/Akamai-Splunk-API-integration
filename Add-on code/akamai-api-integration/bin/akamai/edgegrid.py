@@ -34,7 +34,7 @@ from time import gmtime, strftime
 
 if sys.version_info[0] >= 3:
     # python3
-    from urllib.parse import urlparse, parse_qsl, urlunparse
+    from urllib.parse import urlsplit
 else:
     # python2.7
     from urlparse import urlparse, parse_qsl, urlunparse
@@ -184,7 +184,7 @@ class EdgeGridAuth(AuthBase):
         return header
 
     def make_data_to_sign(self, r, auth_header):
-        parsed_url = urlparse(r.url)
+        parsed_url = urlsplit(r.url)
 
         if (r.headers.get('Host', False)):
             netloc = r.headers['Host']

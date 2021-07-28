@@ -184,7 +184,7 @@ def collect_events(helper, ew):
                         akamaiAPIsession = requests.Session()
                         akamaiAPIsession.auth = EdgeGridAuth(opt_api_client_token, opt_api_client_secret, opt_api_access_token)
                         # it will work eventually
-                        attempt=count+1
+                        attempt=attempt+1
                         # or stall forever and ever
                         sleep(attempt*1)
                         pass
