@@ -9,8 +9,9 @@
 | prolexic_metrics | akamai:json_metrics | Akamai Prolexic Analytics APIv2 metrics add on for Splunk |
 | conf_domains | akamai:json_conf | Akamai Edge DNS Zone and GTM Management API v2 add on for Splunk |
 | prolexic_events | akamai:json_event | Akamai Prolexic Analytics APIv2 events add on for Splunk |
+| akamai_siem | akamai:json_siem | Akamai SIEM API add on for Splunk |
 
-*akamai:json_metrics* and *akamai:json_event* are designed to be resilient. If the API or the connectivity fails the next scheduled run is able to recover what wasn't logged before.
+*akamai:json_metrics*, *akamai:json_event* and *akamai:json_siem* are designed to be resilient. If the API or the connectivity fails the next scheduled run is able to recover what wasn't logged before.
 
 ## High level overview
 
@@ -73,6 +74,16 @@ For all three the logic is the same:
 1) get the event list given a contract ID or a timerange if necessary.
 
 2) for each single JSON event: compute the hash of the entire event and log only if the hash is new or different (attack reports usually are updated by the operators)
+
+### akamai:json_siem
+
+Collect SIEM data using:
+
+[Prolexic API docs](https://developer.akamai.com/api/cloud_security/siem/v1.html)
+
+All data is logged as JSON objects. The ingestion is performed as long as the API return at least on event or the desidered time limit is reached.
+The input saves the offset provided by the API so in the next run it will start to collect new events (more details in the API docs).
+This is the input that usually is collecting a lot of data, be careful.
  
 ## FAQ
 
