@@ -2,7 +2,7 @@
     "meta": {
         "name": "akamai-api-integration",
         "displayName": "Akamai API integration",
-        "version": "1.2.0",
+        "version": "1.0.0",
         "apiVersion": "3.0.0",
         "restRoot": "akamai_api_integration",
         "schemaVersion": "0.0.2"
@@ -217,12 +217,48 @@
                         "label": "API access token"
                     },
                     {
+                        "field": "gtm_configuration",
+                        "label": "GTM configuration"
+                    },
+                    {
+                        "field": "dns_zones",
+                        "label": "DNS zones"
+                    },
+                    {
+                        "field": "metrics",
+                        "label": "Metrics"
+                    },
+                    {
                         "field": "api_monitored_contractids",
                         "label": "API monitored contractids"
                     },
                     {
+                        "field": "time_series",
+                        "label": "Time series"
+                    },
+                    {
+                        "field": "api_ip_assets",
+                        "label": "API IP assets"
+                    },
+                    {
+                        "field": "api_sample",
+                        "label": "API sample"
+                    },
+                    {
                         "field": "use_splunk_helper_checkpoint",
                         "label": "Use Splunk helper checkpoint"
+                    },
+                    {
+                        "field": "api_configid",
+                        "label": "API configID"
+                    },
+                    {
+                        "field": "api_limit",
+                        "label": "API limit"
+                    },
+                    {
+                        "field": "time_limit",
+                        "label": "Time limit"
                     },
                     {
                         "field": "events",
@@ -239,42 +275,6 @@
                     {
                         "field": "api_minutes",
                         "label": "Attack reports API minutes"
-                    },
-                    {
-                        "field": "gtm_configuration",
-                        "label": "GTM configuration"
-                    },
-                    {
-                        "field": "dns_zones",
-                        "label": "DNS zones"
-                    },
-                    {
-                        "field": "metrics",
-                        "label": "Metrics"
-                    },
-                    {
-                        "field": "time_series",
-                        "label": "Time series"
-                    },
-                    {
-                        "field": "api_ip_assets",
-                        "label": "API IP assets"
-                    },
-                    {
-                        "field": "api_sample",
-                        "label": "API sample"
-                    },
-                    {
-                        "field": "api_configid",
-                        "label": "API configID"
-                    },
-                    {
-                        "field": "api_limit",
-                        "label": "API limit"
-                    },
-                    {
-                        "field": "time_limit",
-                        "label": "Time limit"
                     }
                 ],
                 "actions": [
@@ -285,194 +285,6 @@
                 ]
             },
             "services": [
-                {
-                    "name": "prolexic_events",
-                    "title": "Akamai Prolexic events",
-                    "entity": [
-                        {
-                            "field": "name",
-                            "label": "Name",
-                            "type": "text",
-                            "help": "Enter a unique name for the data input",
-                            "required": true,
-                            "validators": [
-                                {
-                                    "type": "regex",
-                                    "pattern": "^[a-zA-Z]\\w*$",
-                                    "errorMsg": "Input Name must start with a letter and followed by alphabetic letters, digits or underscores."
-                                },
-                                {
-                                    "type": "string",
-                                    "minLength": 1,
-                                    "maxLength": 100,
-                                    "errorMsg": "Length of input name should be between 1 and 100"
-                                }
-                            ]
-                        },
-                        {
-                            "field": "interval",
-                            "label": "Interval",
-                            "type": "text",
-                            "required": true,
-                            "help": "Time interval of input in seconds.",
-                            "validators": [
-                                {
-                                    "type": "regex",
-                                    "pattern": "^\\-[1-9]\\d*$|^\\d*$",
-                                    "errorMsg": "Interval must be an integer."
-                                }
-                            ]
-                        },
-                        {
-                            "field": "index",
-                            "label": "Index",
-                            "type": "singleSelect",
-                            "defaultValue": "default",
-                            "options": {
-                                "endpointUrl": "data/indexes",
-                                "createSearchChoice": true,
-                                "denyList": "^_.*$"
-                            },
-                            "required": true,
-                            "validators": [
-                                {
-                                    "type": "string",
-                                    "minLength": 1,
-                                    "maxLength": 80,
-                                    "errorMsg": "Length of index name should be between 1 and 80."
-                                }
-                            ]
-                        },
-                        {
-                            "field": "api_base_url",
-                            "label": "API base url",
-                            "help": "https://akab-yyyyyyyyyyyyyyyy-xxxxxxxxxxxxxxxx.luna.akamaiapis.net/",
-                            "required": true,
-                            "type": "text",
-                            "validators": [
-                                {
-                                    "type": "string",
-                                    "minLength": 0,
-                                    "maxLength": 8192,
-                                    "errorMsg": "Max length of text input is 8192"
-                                }
-                            ]
-                        },
-                        {
-                            "field": "api_client_token",
-                            "label": "API client token",
-                            "help": "",
-                            "required": true,
-                            "type": "text",
-                            "validators": [
-                                {
-                                    "type": "string",
-                                    "minLength": 0,
-                                    "maxLength": 8192,
-                                    "errorMsg": "Max length of text input is 8192"
-                                }
-                            ]
-                        },
-                        {
-                            "field": "api_client_secret",
-                            "label": "API client secret",
-                            "help": "",
-                            "required": true,
-                            "type": "text",
-                            "encrypted": true,
-                            "validators": [
-                                {
-                                    "type": "string",
-                                    "minLength": 0,
-                                    "maxLength": 8192,
-                                    "errorMsg": "Max length of password is 8192"
-                                }
-                            ]
-                        },
-                        {
-                            "field": "api_access_token",
-                            "label": "API access token",
-                            "help": "",
-                            "required": true,
-                            "type": "text",
-                            "validators": [
-                                {
-                                    "type": "string",
-                                    "minLength": 0,
-                                    "maxLength": 8192,
-                                    "errorMsg": "Max length of text input is 8192"
-                                }
-                            ]
-                        },
-                        {
-                            "field": "api_monitored_contractids",
-                            "label": "API monitored contractids",
-                            "help": "Comma separated list of monitored contracts",
-                            "required": true,
-                            "type": "text",
-                            "defaultValue": "DC1,DC2",
-                            "validators": [
-                                {
-                                    "type": "string",
-                                    "minLength": 0,
-                                    "maxLength": 8192,
-                                    "errorMsg": "Max length of text input is 8192"
-                                }
-                            ]
-                        },
-                        {
-                            "field": "use_splunk_helper_checkpoint",
-                            "label": "Use Splunk helper checkpoint",
-                            "help": "If possible leave checked to use Splunk helper checkpoint. If not it will fall back with files",
-                            "required": false,
-                            "type": "checkbox",
-                            "defaultValue": true
-                        },
-                        {
-                            "field": "events",
-                            "label": "Events",
-                            "help": "Log events",
-                            "required": false,
-                            "type": "checkbox",
-                            "defaultValue": true
-                        },
-                        {
-                            "field": "critical_events",
-                            "label": "Critical events",
-                            "help": "Log critical events",
-                            "required": false,
-                            "type": "checkbox",
-                            "defaultValue": true
-                        },
-                        {
-                            "field": "attack_reports",
-                            "label": "Attack reports",
-                            "help": "Log attack reports",
-                            "required": false,
-                            "type": "checkbox",
-                            "defaultValue": true
-                        },
-                        {
-                            "field": "api_minutes",
-                            "label": "Attack reports API minutes",
-                            "help": "Retrieve events in the last X minutes",
-                            "required": true,
-                            "type": "text",
-                            "defaultValue": "80640",
-                            "validators": [
-                                {
-                                    "type": "string",
-                                    "minLength": 0,
-                                    "maxLength": 8192,
-                                    "errorMsg": "Max length of text input is 8192"
-                                }
-                            ],
-                            "options": {
-                                "placeholder": "80640"
-                            }
-                        }
-                    ]
-                },
                 {
                     "name": "conf_domains",
                     "title": "Akamai DNS and GTM",
@@ -990,6 +802,194 @@
                             "required": false,
                             "type": "checkbox",
                             "defaultValue": true
+                        }
+                    ]
+                },
+                {
+                    "name": "prolexic_events",
+                    "title": "Akamai Prolexic events",
+                    "entity": [
+                        {
+                            "field": "name",
+                            "label": "Name",
+                            "type": "text",
+                            "help": "Enter a unique name for the data input",
+                            "required": true,
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "pattern": "^[a-zA-Z]\\w*$",
+                                    "errorMsg": "Input Name must start with a letter and followed by alphabetic letters, digits or underscores."
+                                },
+                                {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 100,
+                                    "errorMsg": "Length of input name should be between 1 and 100"
+                                }
+                            ]
+                        },
+                        {
+                            "field": "interval",
+                            "label": "Interval",
+                            "type": "text",
+                            "required": true,
+                            "help": "Time interval of input in seconds.",
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "pattern": "^\\-[1-9]\\d*$|^\\d*$",
+                                    "errorMsg": "Interval must be an integer."
+                                }
+                            ]
+                        },
+                        {
+                            "field": "index",
+                            "label": "Index",
+                            "type": "singleSelect",
+                            "defaultValue": "default",
+                            "options": {
+                                "endpointUrl": "data/indexes",
+                                "createSearchChoice": true,
+                                "denyList": "^_.*$"
+                            },
+                            "required": true,
+                            "validators": [
+                                {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 80,
+                                    "errorMsg": "Length of index name should be between 1 and 80."
+                                }
+                            ]
+                        },
+                        {
+                            "field": "api_base_url",
+                            "label": "API base url",
+                            "help": "https://akab-yyyyyyyyyyyyyyyy-xxxxxxxxxxxxxxxx.luna.akamaiapis.net/",
+                            "required": true,
+                            "type": "text",
+                            "validators": [
+                                {
+                                    "type": "string",
+                                    "minLength": 0,
+                                    "maxLength": 8192,
+                                    "errorMsg": "Max length of text input is 8192"
+                                }
+                            ]
+                        },
+                        {
+                            "field": "api_client_token",
+                            "label": "API client token",
+                            "help": "",
+                            "required": true,
+                            "type": "text",
+                            "validators": [
+                                {
+                                    "type": "string",
+                                    "minLength": 0,
+                                    "maxLength": 8192,
+                                    "errorMsg": "Max length of text input is 8192"
+                                }
+                            ]
+                        },
+                        {
+                            "field": "api_client_secret",
+                            "label": "API client secret",
+                            "help": "",
+                            "required": true,
+                            "type": "text",
+                            "encrypted": true,
+                            "validators": [
+                                {
+                                    "type": "string",
+                                    "minLength": 0,
+                                    "maxLength": 8192,
+                                    "errorMsg": "Max length of password is 8192"
+                                }
+                            ]
+                        },
+                        {
+                            "field": "api_access_token",
+                            "label": "API access token",
+                            "help": "",
+                            "required": true,
+                            "type": "text",
+                            "validators": [
+                                {
+                                    "type": "string",
+                                    "minLength": 0,
+                                    "maxLength": 8192,
+                                    "errorMsg": "Max length of text input is 8192"
+                                }
+                            ]
+                        },
+                        {
+                            "field": "api_monitored_contractids",
+                            "label": "API monitored contractids",
+                            "help": "Comma separated list of monitored contracts",
+                            "required": true,
+                            "type": "text",
+                            "defaultValue": "DC1,DC2",
+                            "validators": [
+                                {
+                                    "type": "string",
+                                    "minLength": 0,
+                                    "maxLength": 8192,
+                                    "errorMsg": "Max length of text input is 8192"
+                                }
+                            ]
+                        },
+                        {
+                            "field": "use_splunk_helper_checkpoint",
+                            "label": "Use Splunk helper checkpoint",
+                            "help": "If possible leave checked to use Splunk helper checkpoint. If not it will fall back with files",
+                            "required": false,
+                            "type": "checkbox",
+                            "defaultValue": true
+                        },
+                        {
+                            "field": "events",
+                            "label": "Events",
+                            "help": "Log events",
+                            "required": false,
+                            "type": "checkbox",
+                            "defaultValue": true
+                        },
+                        {
+                            "field": "critical_events",
+                            "label": "Critical events",
+                            "help": "Log critical events",
+                            "required": false,
+                            "type": "checkbox",
+                            "defaultValue": true
+                        },
+                        {
+                            "field": "attack_reports",
+                            "label": "Attack reports",
+                            "help": "Log attack reports",
+                            "required": false,
+                            "type": "checkbox",
+                            "defaultValue": true
+                        },
+                        {
+                            "field": "api_minutes",
+                            "label": "Attack reports API minutes",
+                            "help": "Retrieve events in the last X minutes",
+                            "required": true,
+                            "type": "text",
+                            "defaultValue": "80640",
+                            "validators": [
+                                {
+                                    "type": "string",
+                                    "minLength": 0,
+                                    "maxLength": 8192,
+                                    "errorMsg": "Max length of text input is 8192"
+                                }
+                            ],
+                            "options": {
+                                "placeholder": "80640"
+                            }
                         }
                     ]
                 }

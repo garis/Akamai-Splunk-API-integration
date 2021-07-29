@@ -146,6 +146,11 @@ def collect_events(helper, ew):
                             # if the hash is different from the one retrieve from the checkpoint
                             # log the new event...
                             helper.log_debug('new critical event or update found, logging '+str(event["eventId"]))
+                            
+                            # avoid fields with the name "source" in the logged data
+                            event["eventSource"] = event["source"]
+                            event.pop("source", None)
+                            
                             data = json.dumps(event)
                             event = helper.new_event(time=logTime, source=helper.get_input_type(),
                             index=helper.get_output_index(),
