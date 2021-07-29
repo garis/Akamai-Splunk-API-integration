@@ -1,5 +1,7 @@
 # Akamai-Splunk-API-integration
-**Unofficial** Splunk add on for Akamai prolexic, DNS and GTM ingestion written in Python 3.7
+**Unofficial** Splunk add on for Akamai prolexic, DNS and GTM, and SIEM API ingestion written in Python 3.7
+
+[Splunkbase link](https://splunkbase.splunk.com/app/5660/#/overview)
 
 ![Dashboard example](https://github.com/garis/Akamai-Splunk-API-integration/blob/main/images/dashboard.png)
 
@@ -79,7 +81,7 @@ For all three the logic is the same:
 
 Collect SIEM data using:
 
-[Prolexic API docs](https://developer.akamai.com/api/cloud_security/siem/v1.html)
+[SIEM API docs](https://developer.akamai.com/api/cloud_security/siem/v1.html)
 
 All data is logged as JSON objects. The ingestion is performed as long as the API return at least on event or the desidered time limit is reached.
 The input saves the offset provided by the API so in the next run it will start to collect new events (more details in the API docs).
