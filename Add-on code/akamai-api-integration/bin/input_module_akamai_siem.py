@@ -159,7 +159,7 @@ def collect_events(helper, ew):
                                     rules_array.append({})
                             i = 0
                             for item in member_array:
-                                rules_array[i][member_as_singular] = base64.b64decode(item).decode("UTF-8")
+                                rules_array[i][member_as_singular] = base64.b64decode(item).decode("UTF-8",errors='replace')
                                 i += 1
                         # if doesn't start with "rule" is data we need to keep for later
                         else:
