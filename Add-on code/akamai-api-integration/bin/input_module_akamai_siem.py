@@ -85,6 +85,8 @@ def helper_setCheckpoint(helper, use_helperCheckpoint, key, value, filenameID):
 
 def collect_events(helper, ew):
     
+    helper.log_info("Input {} has started.".format(str(helper.get_input_stanza_names())))
+    
     # setup for the proxy variables if needed
     proxy = helper.get_proxy()
     proxies = None
@@ -208,5 +210,5 @@ def collect_events(helper, ew):
             helper.log_error(result.text)
             # exit the loop
             opt_time_limit=0
-
     
+    helper.log_info("Input {} has ended.".format(str(helper.get_input_stanza_names())))

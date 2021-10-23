@@ -1,0 +1,40 @@
+<form class="form-horizontal form-complex">
+<div class="control-group">
+	<label class="control-label" for="akamai_input_status_check_username">Username <span class="required">*</span> </label>
+    <div class="controls">
+	<input type="text" name="action.akamai_input_status_check.param.username" id="akamai_input_status_check_username"/>
+                <span class="help-block"> 
+                    Username to use for accessing REST API to disable and enable one input
+                </span>
+    </div>
+</div>
+<div class="control-group">
+	<label class="control-label" for="akamai_input_status_check_base_url">Base URL <span class="required">*</span> </label>
+    <div class="controls">
+	<input type="text" name="action.akamai_input_status_check.param.base_url" id="akamai_input_status_check_base_url"/>
+                <span class="help-block"> 
+                    URL form the REST API call.
+                </span>
+    </div>
+</div>
+<div class="control-group">
+	<label class="control-label" for="akamai_input_status_check_input_type">Input type <span class="required">*</span> </label>
+    <div class="controls">
+<select name="action.akamai_input_status_check.param.input_type" id="akamai_input_status_check_input_type">
+        <option value="akamai_siem">akamai_siem</option>
+        <option value="conf_domains">conf_domains</option>
+        <option value="prolexic_events">prolexic_events</option>
+        <option value="prolexic_metrics">prolexic_metrics</option>
+</select>
+    </div>
+</div>
+<div class="control-group">
+	<label class="control-label" for="akamai_input_status_check_input_name">Input name <span class="required">*</span> </label>
+    <div class="controls">
+	<input type="text" name="action.akamai_input_status_check.param.input_name" id="akamai_input_status_check_input_name"/>
+                <span class="help-block"> 
+                    Name of the input
+                </span>
+    </div>
+</div>
+</form>

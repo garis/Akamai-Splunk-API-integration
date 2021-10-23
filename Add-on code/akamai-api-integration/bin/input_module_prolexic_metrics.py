@@ -62,7 +62,9 @@ def helper_setCheckpoint(helper, use_helperCheckpoint, key, value, filenameID):
         json.dump(data, open(filePath, 'w' ))
 
 def collect_events(helper, ew):
-
+    
+    helper.log_info("Input {} has started.".format(str(helper.get_input_stanza_names())))
+    
     # setup for the proxy variables if needed
     proxy = helper.get_proxy()
     proxies = None
@@ -378,3 +380,5 @@ def collect_events(helper, ew):
         else:
             # dump the error in the logs
             helper.log_error(result.text)
+    
+    helper.log_info("Input {} has ended.".format(str(helper.get_input_stanza_names())))
