@@ -116,4 +116,9 @@ Keep in mind that every input need the API credentials, in this way multiple one
 | akamai:json_conf | opt_gtm_configuration | Not a prolexic endpoints so no limits (probably...) |
 | akamai:json_conf | opt_dns_zones | Not a prolexic endpoints so no limits (probably...) |
 
+### Sometimes the log stops to be collected, it seems like the input is not run by Splunk anymore?
+
+Don't know the cause but a workaround based on the CrwodStrike add-on approach has been implemented.
+Each input is logging *Input <INPUT_NAME> has started.* every time is being called. An alert can be constructed to trigger the custom action to disable and re-enable a specific input if this string is missing from the internal logs of Splunk for a while.
+
 #### Special thanks to [Pastea](https://github.com/Pastea) for the help.
