@@ -109,7 +109,7 @@ def process_event(helper, *args, **kwargs):
         data = {'username': clientid, 'password': secret}
         auth_url = base_url + "/services/auth/login"
         
-        helper.log_info("data={}".format(data))
+        #helper.log_info("data={}".format(data))
         helper.log_info("auth_url={}".format(auth_url))
         
         session_response = ""
