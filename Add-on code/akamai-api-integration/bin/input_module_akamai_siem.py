@@ -13,6 +13,7 @@ import re
 import hashlib
 import base64
 import traceback
+from concurrent import futures
 from akamai.edgegrid import EdgeGridAuth  # from https://github.com/akamai/AkamaiOPEN-edgegrid-python
 from urllib.parse import unquote
 
@@ -84,6 +85,56 @@ def helper_setCheckpoint(helper, use_helperCheckpoint, key, value, filenameID):
         # ... and save checkpoints on a JSON file
         json.dump(data, open(filePath, 'w' ))
 
+def digest_event(event, ew, helper):
+    # valid attack event
+	if "attackData" in event:
+		try:
+			eventJSON=json.loads(event)
+			rules_array = []
+			other_data = {}
+			for member in eventJSON["attackData"]:
+				# if the field start with "rule" we need a special parsing
+				# code adapted from the official API docs
+				if member[0:4] == 'rule':
+					# Alternate field name converted from plural:
+					member_as_singular = re.sub("s$", "", member)
+					url_decoded = unquote(eventJSON["attackData"][member])
+					# remove empty strings
+					member_array = list(filter(None, url_decoded.split(";")))
+					if not len(rules_array):
+						for i in range(len(member_array)):
+							rules_array.append({})
+					i = 0
+					for item in member_array:
+						rules_array[i][member_as_singular] = base64.b64decode(item).decode("UTF-8",errors='replace')
+						i += 1
+				# if doesn't start with "rule" is data we need to keep for later
+				else:
+					other_data[member]=eventJSON["attackData"][member]
+			# replace the rules data with the parsed format...
+			eventJSON["attackData"]=rules_array
+			# ... and add other data
+			eventJSON["attackData"].append(other_data)
+			
+			# remove some fields
+			eventJSON.pop("format", None)
+			eventJSON.pop("type", None)
+			eventJSON.pop("version", None) 
+		
+			# log the data with the time taken from the JSON event
+			data = json.dumps(eventJSON)
+			event = helper.new_event(time=int(eventJSON["httpMessage"]["start"]), source=helper.get_input_type(),
+				index=helper.get_output_index(),
+				sourcetype=helper.get_sourcetype(),
+				data=data)
+			ew.write_event(event)
+		except ValueError:  # includes simplejson.decoder.JSONDecodeError
+			helper.log_debug('Decoding JSON has failed')
+			helper.log_debug(traceback.format_exc())
+			helper.log_debug("Resetting offset because of an error, setting offset=NULL to restart")
+			eventCheckpoint="NULL"
+			helper_setCheckpoint(helper, opt_use_splunk_helper_checkpoint,configIDhash,eventCheckpoint,configIDhash)
+
 def collect_events(helper, ew):
     
     helper.log_info("Input {} has started.".format(str(helper.get_input_stanza_names())))
@@ -140,71 +191,30 @@ def collect_events(helper, ew):
             # split every line is a single object...
             JSONobjects=result.text.splitlines()
             
-            # ... and iterate over them
-            for event in JSONobjects:
-                # valid attack event
-                if "attackData" in event:
-                    
-                    try:
-                        eventJSON=json.loads(event)
-                        rules_array = []
-                        other_data = {}
-                        for member in eventJSON["attackData"]:
-                            # if the field start with "rule" we need a special parsing
-                            # code adapted from the official API docs
-                            if member[0:4] == 'rule':
-                                # Alternate field name converted from plural:
-                                member_as_singular = re.sub("s$", "", member)
-                                url_decoded = unquote(eventJSON["attackData"][member])
-                                # remove empty strings
-                                member_array = list(filter(None, url_decoded.split(";")))
-                                if not len(rules_array):
-                                    for i in range(len(member_array)):
-                                        rules_array.append({})
-                                i = 0
-                                for item in member_array:
-                                    rules_array[i][member_as_singular] = base64.b64decode(item).decode("UTF-8",errors='replace')
-                                    i += 1
-                            # if doesn't start with "rule" is data we need to keep for later
-                            else:
-                                other_data[member]=eventJSON["attackData"][member]
-                        # replace the rules data with the parsed format...
-                        eventJSON["attackData"]=rules_array
-                        # ... and add other data
-                        eventJSON["attackData"].append(other_data)
-                        
-                        # remove some fields
-                        eventJSON.pop("format", None)
-                        eventJSON.pop("type", None)
-                        eventJSON.pop("version", None) 
-                    
-                        # log the data with the time taken from the JSON event
-                        data = json.dumps(eventJSON)
-                        event = helper.new_event(time=int(eventJSON["httpMessage"]["start"]), source=helper.get_input_type(),
-                            index=helper.get_output_index(),
-                            sourcetype=helper.get_sourcetype(),
-                            data=data)
-                        ew.write_event(event)
-                    except ValueError:  # includes simplejson.decoder.JSONDecodeError
-                        helper.log_debug('Decoding JSON has failed')
-                        helper.log_debug(traceback.format_exc())
-                        helper.log_debug("Resetting offset because of an error, setting offset=NULL to restart")
-                        eventCheckpoint="NULL"
-                        helper_setCheckpoint(helper, opt_use_splunk_helper_checkpoint,configIDhash,eventCheckpoint,configIDhash)
-                # if the obejct contain an offset, save it
-                elif "offset" in event:
-                    eventJSON=json.loads(event)
-                    eventCheckpoint=eventJSON["offset"]
-                    helper.log_debug("Fetched " + str(eventJSON["total"]) + " events with final offset " + eventJSON["offset"])
-                    helper_setCheckpoint(helper, opt_use_splunk_helper_checkpoint,configIDhash,eventCheckpoint,configIDhash)
-                    
-                    # if we collected 0 events end the script
-                    if eventJSON["total"] == 0:
-                        helper.log_debug("Ending the collection script")
-                        opt_time_limit=0
-                # shoul never go here, log in case it happens
-                else:
-                    helper.log_debug("Unknown data "+event)
+            # ... and iterate over them in an async way
+            # ProccessThreadPoolExecutor instead of ThreadPoolExecutor doesn't work :(
+            with futures.ThreadPoolExecutor(max_workers=4) as executor:
+                # for each event submit a request to process the event and log it with the help of the objects ew and helper
+                metrics_future = dict((executor.submit(digest_event, event, ew, helper), JSONobjects) for event in JSONobjects)
+                # check for errors
+                for future in futures.as_completed(metrics_future, None):
+                    resource = metrics_future[future]
+                    if future.exception() is not None:
+                        helper.log_debug('ERROR: resource generated an exception: {0}'.format(future.exception()))
+            
+            # if the object contain an offset, save it
+            event=JSONobjects[-1]
+            if "offset" in event:
+                eventJSON=json.loads(event)
+                eventCheckpoint=eventJSON["offset"]
+                helper.log_debug("Fetched " + str(eventJSON["total"]) + " events with final offset " + eventJSON["offset"])
+                helper_setCheckpoint(helper,opt_use_splunk_helper_checkpoint,configIDhash,eventCheckpoint,configIDhash)
+                
+                # if we collected 0 events end the script
+                if eventJSON["total"] == 0:
+                    helper.log_debug("Ending the collection script")
+                    opt_time_limit=0
+            
         elif result.status_code==416:
             # dump the error in the logs
             helper.log_error(result.text)

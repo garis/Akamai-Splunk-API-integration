@@ -2,7 +2,7 @@
     "meta": {
         "name": "akamai-api-integration",
         "displayName": "Akamai API integration",
-        "version": "1.0.0",
+        "version": "1.3",
         "restRoot": "akamai_api_integration",
         "schemaVersion": "0.0.3"
     },
