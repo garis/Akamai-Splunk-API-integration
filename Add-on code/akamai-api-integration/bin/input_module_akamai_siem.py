@@ -12,6 +12,7 @@ import time
 import re
 import hashlib
 import base64
+import traceback
 from akamai.edgegrid import EdgeGridAuth  # from https://github.com/akamai/AkamaiOPEN-edgegrid-python
 from urllib.parse import unquote
 
@@ -144,45 +145,52 @@ def collect_events(helper, ew):
                 # valid attack event
                 if "attackData" in event:
                     
-                    eventJSON=json.loads(event)
-                    rules_array = []
-                    other_data = {}
-                    for member in eventJSON["attackData"]:
-                        # if the field start with "rule" we need a special parsing
-                        # code adapted from the official API docs
-                        if member[0:4] == 'rule':
-                            # Alternate field name converted from plural:
-                            member_as_singular = re.sub("s$", "", member)
-                            url_decoded = unquote(eventJSON["attackData"][member])
-                            # remove empty strings
-                            member_array = list(filter(None, url_decoded.split(";")))
-                            if not len(rules_array):
-                                for i in range(len(member_array)):
-                                    rules_array.append({})
-                            i = 0
-                            for item in member_array:
-                                rules_array[i][member_as_singular] = base64.b64decode(item).decode("UTF-8",errors='replace')
-                                i += 1
-                        # if doesn't start with "rule" is data we need to keep for later
-                        else:
-                            other_data[member]=eventJSON["attackData"][member]
-                    # replace the rules data with the parsed format...
-                    eventJSON["attackData"]=rules_array
-                    # ... and add other data
-                    eventJSON["attackData"].append(other_data)
+                    try:
+                        eventJSON=json.loads(event)
+                        rules_array = []
+                        other_data = {}
+                        for member in eventJSON["attackData"]:
+                            # if the field start with "rule" we need a special parsing
+                            # code adapted from the official API docs
+                            if member[0:4] == 'rule':
+                                # Alternate field name converted from plural:
+                                member_as_singular = re.sub("s$", "", member)
+                                url_decoded = unquote(eventJSON["attackData"][member])
+                                # remove empty strings
+                                member_array = list(filter(None, url_decoded.split(";")))
+                                if not len(rules_array):
+                                    for i in range(len(member_array)):
+                                        rules_array.append({})
+                                i = 0
+                                for item in member_array:
+                                    rules_array[i][member_as_singular] = base64.b64decode(item).decode("UTF-8",errors='replace')
+                                    i += 1
+                            # if doesn't start with "rule" is data we need to keep for later
+                            else:
+                                other_data[member]=eventJSON["attackData"][member]
+                        # replace the rules data with the parsed format...
+                        eventJSON["attackData"]=rules_array
+                        # ... and add other data
+                        eventJSON["attackData"].append(other_data)
+                        
+                        # remove some fields
+                        eventJSON.pop("format", None)
+                        eventJSON.pop("type", None)
+                        eventJSON.pop("version", None) 
                     
-                    # remove some fields
-                    eventJSON.pop("format", None)
-                    eventJSON.pop("type", None)
-                    eventJSON.pop("version", None) 
-                
-                    # log the data with the time taken from the JSON event
-                    data = json.dumps(eventJSON)
-                    event = helper.new_event(time=int(eventJSON["httpMessage"]["start"]), source=helper.get_input_type(),
-                        index=helper.get_output_index(),
-                        sourcetype=helper.get_sourcetype(),
-                        data=data)
-                    ew.write_event(event)
+                        # log the data with the time taken from the JSON event
+                        data = json.dumps(eventJSON)
+                        event = helper.new_event(time=int(eventJSON["httpMessage"]["start"]), source=helper.get_input_type(),
+                            index=helper.get_output_index(),
+                            sourcetype=helper.get_sourcetype(),
+                            data=data)
+                        ew.write_event(event)
+                    except ValueError:  # includes simplejson.decoder.JSONDecodeError
+                        helper.log_debug('Decoding JSON has failed')
+                        helper.log_debug(traceback.format_exc())
+                        helper.log_debug("Resetting offset because of an error, setting offset=NULL to restart")
+                        eventCheckpoint="NULL"
+                        helper_setCheckpoint(helper, opt_use_splunk_helper_checkpoint,configIDhash,eventCheckpoint,configIDhash)
                 # if the obejct contain an offset, save it
                 elif "offset" in event:
                     eventJSON=json.loads(event)
