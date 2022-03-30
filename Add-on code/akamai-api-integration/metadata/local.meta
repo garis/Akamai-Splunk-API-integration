@@ -1,3 +1,8 @@
 [akamai_api_integration_settings/logging]
 version = 8.2.5
 modtime = 1647092873.482217000
+
+[props/akamai%3Acasemanagement]
+owner = admin
+version = 8.2.5
+modtime = 1648657399.338308000

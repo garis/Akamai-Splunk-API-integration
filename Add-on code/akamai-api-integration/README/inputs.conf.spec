@@ -39,3 +39,11 @@ api_configid = Unique identifier for each security configuration. To report on m
 api_limit = Defines the approximate maximum number of security events each fetch returns.
 time_limit = Time limit in seconds after witch the log collection will stop
 use_splunk_helper_checkpoint = If possible leave checked to use Splunk helper checkpoint. If not it will fall back with files
+
+[akamai_case_management://<name>]
+api_base_url = https://akab-yyyyyyyyyyyyyyyy-xxxxxxxxxxxxxxxx.luna.akamaiapis.net/
+api_client_token = 
+api_client_secret = 
+api_access_token = 
+api_client_days = Retrieve the tickets of the last X days.
+use_splunk_helper_checkpoint = If possible leave checked to use Splunk helper checkpoint. If not it will fall back with files
